@@ -353,11 +353,17 @@ run_analysis() {
 # Main script loop
 
 clear
+# Print the colored ASCII art
 echo
-echo -e "${LIGHT_GREEN}~~~ WELCOME TO THE GROMACS SIMULATION ~~~${NC}"
-echo 
-echo -e "${LIGHT_CYAN}Please keep protein file ready in the working "
-echo -e "directory and rename it as 'protein.pdb'${NC}"
+echo -e "${RED}  __________________    _________   ____.______________      ${RESET}"
+echo -e "${RED} /  _____/\\______   \\  /  _  \\   \\ /   /|   \\__    ___/${RESET}__.__. "
+echo -e "${RED}/   \\  ___ |       _/ /  /_\\  \\   Y   / |   | |    | ${RESET}<   |  | "
+echo -e "${RED}\\    \\_\\  \\|    |   \\/    |    \\     /  |   | |    |  ${RESET}\\___  | "
+echo -e "${RED} \\______  /|____|_  /\\____|__  /\\___/   |___| |____|  ${RESET}/ ____| "
+echo -e "${RED}        \\/        \\/         \\/                       ${RESET}\\/      "
+echo
+echo -e "${WHITE}   [GROMACS Rapid Analysis & Visualization Interface Tool]${NC}"
+echo
 echo 
 check_internet
 echo
