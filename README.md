@@ -1,4 +1,4 @@
-# GRAVITY - GROMACS Rapid Analysis and Visualization Interface Tool
+# GRAVITy - GROMACS Rapid Analysis and Visualization Interface Tool -y
 
 **GRAVITY** is an intuitive and powerful command-line-based tool designed to streamline and simplify molecular dynamics (MD) simulations using **GROMACS**. Developed with bioinformaticians and computational biologists in mind, GRAVITY provides a user-friendly interface for setting up, executing, and analyzing MD simulations of proteins, ligands, and their complexes.
 
