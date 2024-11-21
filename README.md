@@ -15,11 +15,17 @@
 ---
 
 ## Installation
+- **1. Clone the repository:**
 
 ```
 git clone https://github.com/AtharvaTilewale/GRAVITy
 ```
+- **2. Installation and Setup:**
 ```
 cd GRAVITy
 bash setup
 ````
+- **3. Run the program:**
+```
+gravity
+```
