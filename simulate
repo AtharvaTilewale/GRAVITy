@@ -372,7 +372,7 @@ add_ions() {
         echo -e ${NC}
 
         case $choice in
-            1) gmx genion -s ions.tpr -o solv_ions.gro -p topol.top -pname NA -nname CL -neutral # > /dev/null 2>&1 & ion_add_loader ;;
+            1) gmx genion -s ions.tpr -o solv_ions.gro -p topol.top -pname NA -nname CL -neutral ;; # > /dev/null 2>&1 & ion_add_loader
             2) gmx genion -s ions.tpr -o solv_ions.gro -p topol.top -pname NA > /dev/null 2>&1 & ion_add_loader ;;
             3) gmx genion -s ions.tpr -o solv_ions.gro -p topol.top -nname CL > /dev/null 2>&1 & ion_add_loader ;;
             *) echo -e "${LIGHT_RED}Invalid option! Please select between 1 and 3.${NC}"
