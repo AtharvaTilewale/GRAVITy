@@ -2,6 +2,8 @@
 #Author: Atharva Tilewale
 #Protein simulation made easy with GRAVITy
 
+# Change working directory
+cd $HOME/.GRAVITy
 # Source the color script
 source $HOME/.GRAVITy/colors
 
