@@ -3,7 +3,7 @@
 #Protein simulation made easy with GRAVITy
 
 # Source the color script
-source ./colors
+source $HOME/.GRAVITy/colors
 
 # Function to stop the spinner if an error occurs
 stop_spinner() {
