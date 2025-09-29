@@ -1,0 +1,111 @@
+#!/bin/bash
+# Author: Atharva Tilewale
+# GRAVITy Setup Installation Script
+
+# Function to stop the spinner if an error occurs
+stop_spinner() {
+    if [ ! -z "$spinner_pid" ]; then
+        kill $spinner_pid &>/dev/null
+    fi
+}
+
+# Function to display a rotating loader with custom text
+show_spinner() {
+    local pid=$1
+    local message=$2
+    local spin='-\|/'
+    local i=0
+
+    while kill -0 $pid 2>/dev/null; do
+        i=$(( (i + 1) % 4 ))
+        printf "\r${spin:$i:1} %s..." "$message"
+        sleep 0.1
+    done
+    printf "\r%s... Done!\n" "$message"
+}
+
+set -e # Stop script on any error
+
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" &>/dev/null
+}
+
+# Function to install Miniconda if Conda is not installed
+install_conda() {
+    echo "Conda not found. Installing Miniconda..."
+    wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /home/$(whoami)/.GRAVITy/Miniconda3.sh
+    bash /home/$(whoami)/.GRAVITy/Miniconda3.sh -b -p /home/$(whoami)/.GRAVITy/miniconda3
+    rm /home/$(whoami)/.GRAVITy/Miniconda3.sh
+    export PATH="/home/$(whoami)/.GRAVITy/miniconda3/bin:$PATH"
+    echo 'export PATH="/home/$(whoami)/.GRAVITy/miniconda3/bin:$PATH"' >> ~/.bashrc
+    source ~/.bashrc
+}
+
+# Step 1: Check for Conda
+if ! command_exists conda; then
+    mkdir /home/$(whoami)/.GRAVITy/
+    install_conda
+else
+    echo "Conda is already installed."
+fi
+
+# Ensure Conda is initialized
+eval "$(conda shell.bash hook)"
+
+# Step 2: Create a dedicated Conda environment
+echo "Creating Conda environment 'gravity_env'..."
+if ! conda info --envs | grep -q "gravity_env"; then
+    conda create -y -n gravity_env python=3.9
+fi
+
+echo "Activating the Conda environment..."
+conda activate gravity_env
+
+# Step 3: Install required Python packages
+echo "Installing required Python packages..."
+conda install -y -c conda-forge openmm numpy pdbfixer
+
+# Step 4: Setup GRAVITy directories
+GRAVITY_HOME="/etc/GRAVITy"
+USER_GRAVITY="/home/$(whoami)/.GRAVITy"
+
+# Remove existing directories if they exist
+if [ -d "$GRAVITY_HOME" ]; then
+    echo "Existing $GRAVITY_HOME directory found. Removing..."
+    sudo rm -rf "$GRAVITY_HOME"
+fi
+if [ -d "$USER_GRAVITY" ]; then
+    echo "Existing $USER_GRAVITY directory found. Removing..."
+    sudo rm -rf "$USER_GRAVITY"
+fi
+
+# Create new directories
+echo "Creating GRAVITy directories..."
+sudo mkdir -p "$GRAVITY_HOME"
+sudo mkdir -p "$USER_GRAVITY/projects"
+
+# Copy files to GRAVITy system directory
+echo "Copying files to $GRAVITY_HOME..."
+sudo cp -r * "$GRAVITY_HOME/"
+
+# Step 5: Setup executable
+echo "Setting up GRAVITy executable..."
+if [ -f "/bin/gravity" ]; then
+    sudo rm -f /bin/gravity
+fi
+sudo ln -s "$GRAVITY_HOME/gravity" /bin/gravity
+
+# Make scripts executable
+sudo chmod +x "$GRAVITY_HOME/gravity"
+sudo chmod -R +x "$GRAVITY_HOME/core/"
+
+sudo chown -R $(whoami):$(whoami) /home/$(whoami)/.GRAVITy
+chmod u+w /home/$(whoami)/.GRAVITy/projects
+
+# Step 6: Run initial GRAVITy setup
+echo "Running GRAVITy setup..."
+sudo bash "$GRAVITY_HOME/gravity" setup
+
+echo "GRAVITy setup completed successfully!"
+exit 0

@@ -1,0 +1,259 @@
+#!/bin/bash
+#Author: Atharva Tilewale
+
+#Add miniconda to PATH
+export PATH="/home/$(whoami)/.GRAVITy/miniconda3/bin:$PATH"
+echo 'export PATH="/home/$(whoami)/.GRAVITy/miniconda3/bin:$PATH"' >>~/.bashrc
+conda init bash >/dev/null 2>&1
+source ~/.bashrc
+
+# Source the color script
+source /etc/GRAVITy/colors
+
+# Ensure the current shell recognizes Conda
+eval "$(conda shell.bash hook)" >/dev/null 2>&1
+
+conda activate gravity_env >/dev/null 2>&1
+
+#Change working directory
+cd /etc/GRAVITy
+
+# Function to create a new project directory
+new_project() {
+    echo -e "\nStarting a new project..."
+    read -p "Enter project name: " project_name
+    project_path="/home/$(whoami)/.GRAVITy/projects/$project_name"
+
+    if [ -d "$project_path" ]; then
+        echo "Project '$project_name' already exists. Choose a different name."
+        new_project
+    fi
+
+    mkdir -p "$project_path"
+    echo "New project created at $project_path."
+
+    # Save the current project directory to a tracking file in /etc/GRAVITy
+    echo "$project_path" | sudo tee /etc/GRAVITy/current_dir.txt >/dev/null
+    echo "Project directory saved to /etc/GRAVITy/current_dir.txt"
+
+    # Update project_dir to the new project path
+    project_dir="$project_path"
+    chmod u+w /home/$(whoami)/.GRAVITy/projects/$project_name
+    sudo chown -R $(whoami):$(whoami) /home/$(whoami)/.GRAVITy/projects/$project_name
+
+    echo
+    echo -e "Select simulation type"
+    echo "1) Protein in Water"
+    echo "2) Protein-Ligand Complex"
+    echo "3) Exit"
+    echo 
+    read -p "Enter your choice [1-3]: " sim_type
+
+    case $sim_type in
+    1)
+        sudo cp -r /etc/GRAVITy/core/prm/protein/* "$project_dir/"
+        sudo cp -r /etc/GRAVITy/charmm36.ff "$project_dir/"
+        sudo cp /etc/GRAVITy/core/protein/* "$project_dir/"
+        mv $project_dir/protein_sim $project_dir/simulate
+        sudo chown -R $(whoami):$(whoami) /home/$(whoami)/.GRAVITy
+        chmod u+w /home/$(whoami)/.GRAVITy/projects
+        chmod u+w $project_dir
+        sudo chown -R $project_dir
+        bash $project_dir/simulate
+        exit 0
+        ;;
+    2)
+        sudo cp -r /etc/GRAVITy/core/prm/complex/* "$project_dir/"
+        sudo cp -r /etc/GRAVITy/charmm36.ff "$project_dir/"
+        sudo cp -r /etc/GRAVITy/core/complex/* "$project_dir/"
+        mv $project_dir/complex_sim $project_dir/simulate
+        sudo chown -R $(whoami):$(whoami) /home/$(whoami)/.GRAVITy
+        chmod u+w /home/$(whoami)/.GRAVITy/projects
+        chmod u+w $project_dir
+        sudo chown -R $project_dir
+        bash $project_dir/simulate
+        exit 0
+        ;;
+    3)
+        exit 0
+        ;;
+    *)
+        echo "${LIGHT_RED}Invalid option! Please select between 1 and 3.${NC}"
+        sleep 1.0
+        ;;
+    esac
+}
+
+# Function to load the current project directory from the tracking file
+load_project_dir() {
+    project_base_dir="$HOME/.GRAVITy/projects"
+
+    if [ -d "$project_base_dir" ]; then
+        echo -e "${LIGHT_BLUE}\nAvailable Projects:${NC}"
+        project_list=("$project_base_dir"/*)
+
+        if [ ${#project_list[@]} -eq 0 ]; then
+            echo "No projects found in $project_base_dir."
+            new_project
+            return
+        fi
+
+        for i in "${!project_list[@]}"; do
+            echo "$((i + 1)). $(basename "${project_list[$i]}")"
+        done
+        echo -e "${LIGHT_YELLOW}"
+        read -p "Select a project by number: " project_number
+        echo -e "${NC}"
+        if [[ $project_number -ge 1 && $project_number -le ${#project_list[@]} ]]; then
+            project_dir="${project_list[$((project_number - 1))]}"
+            echo "$project_dir" | sudo tee /etc/GRAVITy/current_dir.txt >/dev/null
+            echo "Project directory loaded: $project_dir"
+            bash $project_dir/simulate
+            exit 0
+        else
+            echo "Invalid selection. Please try again."
+            load_project_dir
+        fi
+    else
+        echo "No projects directory found. Please create a new project first."
+        new_project
+    fi
+}
+
+# Main functionality
+cd /etc/GRAVITy || {
+    echo "Failed to change to /etc/GRAVITy directory."
+    exit 1
+}
+
+# Menu for project management
+echo
+echo -e "${YELLOW}--------------------------"
+echo -e "  GRAVITy Simulation Tool"
+echo -e "--------------------------${NC}"
+PS3="Choose an option: "
+echo -e ${NC}
+options=("Create New Project" "Use Existing Project" "Exit")
+select opt in "${options[@]}"; do
+    case $opt in
+    "Create New Project")
+        new_project
+        break
+        ;;
+    "Use Existing Project")
+        load_project_dir
+        echo "Using project directory: $project_dir"
+        break
+        ;;
+    "Exit")
+        echo "Exiting GRAVITy."
+        exit 0
+        ;;
+    *)
+        echo "Invalid option. Please try again."
+        ;;
+    esac
+done
+
+# Ensure project directory is loaded
+load_project_dir
+if [ -d "$project_dir" ]; then
+    echo "Using project directory: $project_dir"
+else
+    echo "Project directory not found. Exiting."
+    exit 1
+fi
+
+# # Copy necessary files to the project directory
+# echo "Copying necessary files to $project_dir..."
+
+
+# Run the GRAVITy simulation
+# echo "Running GRAVITy simulation..."
+# bash $project_dir/protein_sim
+
+echo "Simulation completed. Check the results in $project_dir."
+exit 0
+
+# new_project() {
+#     echo "\nStarting a new project..."
+#     read -p "Enter project name: " project_name
+#     mkdir -p $HOME/.GRAVITy/projects/$project_name
+#     echo "New project created in the 'projects' directory."
+#     sudo echo '$HOME/.GRAVITy/projects/'$project_name > /etc/GRAVITy/current_dir.txt
+# }
+
+# open_project() {
+#     echo "\nAvailable projects:"
+#     projects=(projects/*)
+#     if [ ${#projects[@]} -eq 0 ]; then
+#         echo "No projects found."
+#         return
+#     fi
+
+#     for i in "${!projects[@]}"; do
+#         echo "$((i + 1))) ${projects[$i]##*/}"
+#     done
+
+#     read -p "Enter the number of the project to open: " project_number
+#     if [[ $project_number -ge 1 && $project_number -le ${#projects[@]} ]]; then
+#         project_name=${projects[$((project_number - 1))]}
+#         echo "Opening project: ${project_name##*/}"
+#         # Add additional commands to open the project
+#     else
+#         echo "Invalid selection. Returning to main menu."
+#     fi
+# }
+
+# existing_reports() {
+#     echo "\nExisting reports:"
+#     ls reports
+#     read -p "Enter the name of the report to view: " report_name
+#     if [ -f "reports/$report_name" ]; then
+#         cat reports/$report_name
+#     else
+#         echo "Report not found."
+#     fi
+# }
+
+# check_for_updates() {
+#     echo "\nChecking for updates..."
+#     echo "Fetching updates from the repository..."
+#     git pull
+# }
+
+# settings() {
+#     echo "\nOpening settings..."
+#     echo "1) Change default project directory"
+#     echo "2) Update notification preferences"
+#     echo "3) Back"
+#     read -p "Enter your choice: " settings_choice
+
+#     case $settings_choice in
+#         1)
+#             read -p "Enter new project directory path: " new_dir
+#             echo "Default project directory changed to $new_dir"
+#             ;;
+#         2)
+#             echo "Update notification preferences coming soon."
+#             ;;
+#         3)
+#             main_menu
+#             ;;
+#         *)
+#             echo "Invalid choice. Returning to settings."
+#             settings
+#             ;;
+#     esac
+# }
+
+# # Entry point
+# mkdir -p projects reports
+# main_menu
+
+# new_project
+# #copy necessary files to new dir
+# project_dir=$(head -n 1 "/etc/GRAVITy/current_dir.txt")
+# sudo cp /etc/GRAVITy/core/prm/ $HOME/.GRAVITy/projects/$project_name/ -r
+
+# sudo bash /etc/GRAVITy/simulate #run GRAVITy simulation
