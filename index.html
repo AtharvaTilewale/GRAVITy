@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>GRAVITy - An Immersive MD Simulation Experience</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;700&family=Nosifer&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --dark-bg: #0d0d1a;
+            --light-text: #e0e0e0;
+            --accent-glow: #00c6ff;
+            --nosifer-font: "Nosifer", sans-serif;
+            --raleway-font: "Raleway", sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--raleway-font);
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            overflow-x: hidden;
+        }
+
+        /* --- DYNAMIC PARTICLE BACKGROUND --- */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* --- HEADER / NAVBAR --- */
+        .header {
+            background: rgba(13, 13, 26, 0.5);
+            backdrop-filter: blur(12px);
+            padding: 20px 50px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header .logo {
+            font-family: var(--nosifer-font);
+            font-size: 2rem;
+            color: var(--light-text);
+            text-decoration: none;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .header .nav-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            margin-left: 40px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        .header .nav-links a:hover {
+            color: var(--accent-glow);
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        /* --- HERO SECTION (YOUR ORIGINAL DESIGN, ENHANCED) --- */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centered for more impact */
+            text-align: center;
+            position: relative;
+            padding: 0 20px;
+        }
+
+        .hero-title {
+            font-family: var(--nosifer-font);
+            font-size: clamp(3rem, 10vw, 6rem); /* Responsive font size */
+            color: var(--light-text);
+        }
+
+        .hero-logo-img {
+            width: 1em;
+            vertical-align: middle;
+            /* NO ROTATION ANIMATION */
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin: 20px auto 0 auto;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+        }
+
+        .hero-cta-button {
+            background: var(--accent-glow);
+            color: var(--dark-bg);
+            border: 2px solid var(--accent-glow);
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            margin-top: 40px;
+            display: inline-block;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.5);
+        }
+
+        .hero-cta-button:hover {
+            background: transparent;
+            color: var(--accent-glow);
+            transform: translateY(-5px);
+        }
+
+        /* ATOM SCRIPT (ORIGINAL CONCEPT, SUBTLE ANIMATION) */
+        .atom {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 40px auto 0 auto;
+        }
+
+        .atom .line {
+            position: absolute; top: 50%; left: 50%; width: 100%; height: 2px;
+            background: var(--light-text); transform-origin: center;
+            border-radius: 50%;
+            opacity: 0;
+            animation: atom-orbit 6s ease-in-out infinite;
+        }
+        .atom .line-1 { transform: translateX(-50%) translateY(-50%) rotate(60deg); animation-delay: 0s; }
+        .atom .line-2 { transform: translateX(-50%) translateY(-50%) rotate(-60deg); animation-delay: -2s; }
+        .atom .line-3 { transform: translateX(-50%) translateY(-50%) rotate(0deg); animation-delay: -4s; }
+
+        @keyframes atom-orbit {
+            0%   { transform: translateX(-50%) translateY(-50%) rotate(0deg) scale(0.8); opacity: 0.7; }
+            50%  { transform: translateX(-50%) translateY(-50%) rotate(180deg) scale(1); opacity: 1; }
+            100% { transform: translateX(-50%) translateY(-50%) rotate(360deg) scale(0.8); opacity: 0.7; }
+        }
+
+        /* --- GLASSMORPHIC CONTENT SECTIONS --- */
+        .content-section {
+            padding: 100px 50px;
+            max-width: 1200px;
+            margin: 100px auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            /* Fade-in animation */
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--accent-glow);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 80px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- FEATURES SECTION GRID --- */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+        .feature-card {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            transition: transform 0.3s, background 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(0, 198, 255, 0.1);
+        }
+        .feature-card .icon {
+            font-size: 3rem;
+            color: var(--accent-glow);
+            margin-bottom: 20px;
+        }
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* --- PLATFORMS SECTION --- */
+        .platforms-container {
+            display: flex;
+            gap: 40px;
+        }
+        .platform-card {
+            flex: 1;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+        }
+        .platform-card h3 {
+            font-family: var(--nosifer-font);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--light-text);
+        }
+        .platform-card .btn {
+            margin-top: 20px;
+            padding: 10px 25px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            border: 2px solid var(--accent-glow);
+            color: var(--accent-glow);
+            transition: all 0.3s;
+        }
+        .platform-card .btn:hover {
+            background: var(--accent-glow);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.5);
+        }
+        
+        /* --- GET STARTED SECTION --- */
+        .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            padding: 25px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            color: var(--light-text);
+            text-align: left;
+            margin-top: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .code-block .comment { color: rgba(255,255,255,0.5); }
+        .code-block .command { color: #f08080; }
+
+        /* --- FOOTER --- */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+        .footer a {
+            color: var(--light-text);
+            text-decoration: none;
+        }
+        .footer a:hover {
+            color: var(--accent-glow);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header { padding: 15px 20px; }
+            .header .nav-links { display: none; }
+            .platforms-container { flex-direction: column; }
+            .content-section { padding: 80px 20px; margin: 50px auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <header class="header" id="myHeader">
+        <a href="#home" class="logo">GRAVITy</a>
+        <nav class="nav-links">
+            <a href="#features">FEATURES</a>
+            <a href="#platforms">PLATFORMS</a>
+            <a href="#get-started">GET STARTED</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero-section" id="home">
+            <div class="hero-content">
+                <span class="hero-title">G R A V </span>
+                <img class="hero-logo-img" src="images/barrel.png" alt="Beta-barrel protein structure">
+                <span class="hero-title">&nbsp;T y</span>
+                <p class="hero-subtitle">An Immersive & Automated Pipeline For GROMACS Based Molecular Dynamics Simulation.</p>
+                <a href="https://atharvatilewale.github.io/GRAVITy/" target="_blank" class="hero-cta-button">LAUNCH WEB APP</a>
+                <div class="atom">
+                    <div class="line line-1"></div>
+                    <div class="line line-2"></div>
+                    <div class="line line-3"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section" id="features">
+            <h2 class="section-title">Redefining Simulation</h2>
+            <p class="section-subtitle">GRAVITy is built on a foundation of powerful, time-saving features that accelerate your research.</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="icon"><i class="fas fa-robot"></i></div>
+                    <h3>Intelligent Automation</h3>
+                    <p>Handles the entire MD workflow, from system setup to final analysis, freeing you to focus on the results.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="fas fa-drafting-compass"></i></div>
+                    <h3>Intuitive Design</h3>
+                    <p>An accessible interface, in both CLI and Web versions, that makes complex simulations straightforward.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="fas fa-chart-pie"></i></div>
+                    <h3>Instant Analysis</h3>
+                    <p>Automatically generates plots for essential metrics like RMSD, RMSF, Hydrogen Bonds, and more.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section" id="platforms">
+            <h2 class="section-title">Choose Your Interface</h2>
+            <p class="section-subtitle">Whether you're in the terminal or the browser, GRAVITy has you covered.</p>
+            <div class="platforms-container">
+                <div class="platform-card">
+                    <h3>CLI Version</h3>
+                    <p>For power users and high-performance computing. Scriptable, fast, and built for complex batch processing.</p>
+                    <a href="https://github.com/AtharvaTilewale/GRAVITy" target="_blank" class="btn">View on GitHub</a>
+                </div>
+                <div class="platform-card">
+                    <h3>Web GUI</h3>
+                    <p>For visual learning and quick setups. Features real-time 3D rendering directly in your browser. No installation needed.</p>
+                    <a href="https://atharvatilewale.github.io/GRAVITy/" target="_blank" class="btn">Launch The App</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section" id="get-started">
+            <h2 class="section-title">Get Started with the CLI</h2>
+            <p class="section-subtitle">Install the command-line tool on your local machine in just three steps.</p>
+            <div class="code-block">
+                <span class="comment"># 1. Clone the repository from GitHub</span><br>
+                <span class="command">git clone https://github.com/AtharvaTilewale/GRAVITy</span><br><br>
+                <span class="comment"># 2. Navigate and run the setup script</span><br>
+                <span class="command">cd GRAVITy</span><br>
+                <span class="command">bash setup</span><br><br>
+                <span class="comment"># 3. Execute the program</span><br>
+                <span class="command">gravity</span>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 GRAVITy Project | Created by <a href="https://github.com/AtharvaTilewale" target="_blank">Atharva Tilewale</a></p>
+    </footer>
+
+    <script>
+        // --- JAVASCRIPT FOR PARTICLE ANIMATION AND SCROLL EFFECTS ---
+
+        // 1. Particle Animation
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray;
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x;
+                this.y = y;
+                this.directionX = directionX;
+                this.directionY = directionY;
+                this.size = size;
+                this.color = color;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = 'rgba(0, 198, 255, 0.5)';
+                ctx.fill();
+            }
+            update() {
+                if (this.x > canvas.width || this.x < 0) {
+                    this.directionX = -this.directionX;
+                }
+                if (this.y > canvas.height || this.y < 0) {
+                    this.directionY = -this.directionY;
+                }
+                this.x += this.directionX;
+                this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.height * canvas.width) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 2) + 1;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * .4) - .2;
+                let directionY = (Math.random() * .4) - .2;
+                let color = 'rgba(0, 198, 255, 0.5)';
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0,0,innerWidth, innerHeight);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            init();
+        });
+
+        init();
+        animate();
+
+
+        // 2. Fade-in Sections on Scroll
+        const sections = document.querySelectorAll('.content-section');
+        const options = {
+            root: null,
+            threshold: 0.15,
+            rootMargin: "0px"
+        };
+
+        const observer = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, options);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
