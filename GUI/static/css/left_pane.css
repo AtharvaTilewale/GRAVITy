@@ -1,0 +1,179 @@
+.left_pane {
+    background-color: #555;
+    width: 33%;
+    min-width: 30%;
+    max-width: 50%;
+    resize: horizontal;
+    position: relative;
+}
+
+#simulationTaskMan {
+    height: 70%;
+    overflow-y: scroll;
+}
+
+#simulationTaskAuto {
+    height: 70%;
+    overflow-y: scroll;
+}
+
+.taskpanel {
+    width: auto;
+    height: auto;
+    margin: 10px;
+    border: none;
+    border-radius: 10px;
+    background-color: #11111133;
+    padding: 15px;
+}
+
+.taskpanel h3 {
+    color: #ffffffdd;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.taskpanel a {
+    font-size: 12px;
+    color: #ffffffdd;
+}
+
+.taskpanel label {
+    color: #ffffffdd;
+    font-size: 12px;
+}
+
+.taskpanel input {
+    background-color: #353535;
+    border: none;
+    height: 30px;
+    color: #ffffff99;
+    font-size: 12px;
+}
+
+.taskpanel input:active {
+    background-color: #353535;
+}
+
+.taskpanel select {
+    background-color: #353535;
+    border: none;
+    height: 30px;
+    color: #ffffff99;
+    font-size: 12px;
+}
+
+.taskpanel select:active {
+    background-color: #353535;
+}
+
+.taskpanel .tooltip {
+    color: #ffffff99;
+}
+
+.taskpanel .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 150px;
+    background-color: #555;
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    transform: translateX(-50%);
+    margin-left: -700%;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.taskpanel .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.taskpanel button {
+    padding: 10px;
+    border-radius: 7px;
+    background-color: #373737;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    border: none;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.taskpanel button:hover {
+    background-color: #252525;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.askSimType {
+    margin: 20% 10% 0% 10%;
+    padding: 10px;
+    text-align: center;
+    color: #ffffff77;
+    font-family: sans-serif;
+    position: absolute;
+    background-color: #11111133;
+    border-radius: 10px;
+}
+
+.askSimType h3 {
+    font-size: 18px;
+    margin: 7px;
+    font-family: sans-serif;
+}
+
+.askSimType h5 {
+    font-size: 14px;
+}
+
+.askSimType a {
+    font-size: 13px;
+}
+
+.askSimType button {
+    padding: 10px;
+    display: inline;
+    border-radius: 7px;
+    background-color: #373737;
+    color: rgba(255, 255, 255, 0.742);
+    cursor: pointer;
+    border: none;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.askSimType button:hover {
+    background-color: #252525;
+}
+
+.bottomToolPanel {
+    width: 100%;
+    height: 30%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border: 1px solid #111;
+    border-left: none;
+    background-color: #333;
+}
+
+.bottomToolPanel h1 {
+    color: #ffffff77;
+    font-size: 12px;
+    margin: 15px 10px 15px 10px;
+}
+
+.heirarchyRow {
+    width: auto;
+    font-size: 12px;
+    color: #ffffff99;
+    border-bottom: 1px solid #555;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    margin-right: 10px;
+}

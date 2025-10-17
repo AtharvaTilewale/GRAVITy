@@ -1,0 +1,9 @@
+#!/bin/bash
+pdb_id=1hny
+forcefield=charmm36
+water_model=tip3p
+box_type=cubic
+concentration=None
+equilibration_time=1
+sim_time=1
+sim_frames=10

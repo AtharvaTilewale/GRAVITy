@@ -1,0 +1,82 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none; /* Works on modern browsers */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+}
+
+/* For WebKit browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+    width: 5px; /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: #3c3c3c; /* Track color */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #555; /* Scrollbar handle color */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Color on hover */
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #555 #3c3c3c;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+.nosifer-regular {
+    font-family: "Nosifer", serif;
+    font-weight: 100;
+    font-style: normal;
+    color: #e9e9e9
+}
+
+.alpha_img {
+    width: 10px;
+    height: 23px;
+    top: 8px;
+    position: relative
+}
+
+.logo-label {
+    bottom: 5px;
+    right: 10px;
+    z-index: 1;
+    position: fixed;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+    position: relative;
+}
+
+.column {
+    padding: 0;
+    border: 1px solid #000;
+    overflow: auto;
+}
+
+.resizer {
+    width: 1px;
+    cursor: ew-resize;
+    background: #000;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+}

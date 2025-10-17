@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="../static/css/navbar.css">
+    <link rel="stylesheet" href="../static/css/fetchPDB.css">
+    <link rel="stylesheet" href="../static/css/left_pane.css">
+    <link rel="stylesheet" href="../static/css/viewer.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nosifer&display=swap">
+    <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+    <script src="https://3Dmol.org/build/3Dmol.js"></script>
+    <script src="https://3Dmol.org/build/3Dmol.ui-min.js"></script>
+    <title>GRAVITy - Simulation Workspace</title>
+</head>
+
+<body>
+    <!-- ========================= HEADER SECTION STARTS HERE ========================== -->
+
+    <div class="header">
+        <!-- Navigation bar starts here -->
+        <ul class="nav">
+
+            <!-- ************************ File Tab ************************ -->
+
+            <li onclick="toggleDropdown(event)">File
+                <!-- File Dropdown Menu -->
+                <ul class="dropdown" id="fileDropdown">
+
+                    <!-- PDB file from local device -->
+                    <li onclick="document.getElementById('fileInput').click()">Import File
+                        <input type="file" id="fileInput" accept=".pdb" style="display: none;"
+                            onchange="loadPDBFile(event)">
+                    </li>
+
+                    <!-- Fetch PDB structure from PDB DataBase -->
+                    <li onclick="openModal()">Get with PDB ID
+                    </li>
+
+                </ul>
+            </li>
+
+            <!-- ************************ Edit Tab ************************ -->
+
+            <li>Edit</li>
+
+            <!-- ****************** Tutorials Tab ************************ -->
+
+            <li>Tutorials</li>
+
+            <!-- ****************** Help Tab ************************ -->
+
+            <li>Help</li>
+        </ul>
+        <!-- Navigation bar ends here -->
+    </div>
+
+    <!-- ========================= HEADER SECTION ENDS HERE ========================== -->
+
+
+    <!-- =========================== MAIN BODY STARTS HERE =========================== -->
+
+    <div class="container">
+
+        <!-- ============ LEFT COLUMN SECTION STARTS HERE ============== -->
+
+        <div class="column left_pane" contenteditable="false">
+            <div class="resizer"></div>
+            <div id="askSimType" class="askSimType" style="display: block;">
+                <h3>GRAVITy</h3>
+                <h5>(Gromacs Run Analysis & Visualization Interface Tool)</h5>
+                <br>
+                <a>Do you want to proceed with the manual process, or would you like to go for the automated one?</a>
+                <br>
+                <div>
+                    <button onclick="manual()">Keep Manual</button>
+                    <button onclick="automated()">Go Automated</button>
+                </div>
+
+            </div>
+            <div id="simulationTaskMan" style="display: none;">
+                <div class="taskpanel">
+                    <h3>Load Molecules</h3>
+                    <br>
+                    <div class="form-row">
+                        <label for="pdb_id">Enter PDB ID</label>
+                        <div class="input-container">
+                            <input type="text" id="pdbInputManual" name="pdb_id" placeholder="1HNY" required>
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Input PDB ID for Protein</span>
+                            </span>
+                        </div>
+                    </div>
+                    <button class="fetchBtn" type="button" onclick="fetchPDB()">Fetch</button>
+                    <a style="text-align: center; justify-content: center; display: block; margin-top: 15px;">OR</a>
+                    <a style="text-align: center; justify-content: center; display: block; margin-top: 15px;">Import the protein structure file from your local machine (PDB/PDBQT) </a>
+                    <button
+                        style="justify-content: center; display: block; margin-left:auto; margin-right: auto; padding: 10px 20px 10px 20px;"
+                        onclick="document.getElementById('fileInput').click()">Import File
+                        <input type="file" id="fileInput" accept=".pdb, .pdbqt" style="display: none;"
+                            onchange="loadPDBFile(event)">
+                    </button>
+                </div>
+
+                <div class="taskpanel">
+                    <h3>Generate Topology</h3>
+                    <br>
+                    <div class="form-row">
+                        <label for="forcefield">Forcefield</label>
+                        <div class="input-container">
+                            <select id="forcefield" name="forcefield">
+                                <option value="charmm36">CHARMM36</option>
+                                <option value="charmm27">CHARMM27</option>
+                                <option value="opls-aa">OPLS/AA</option>
+                                <option value="amberss9b">AMBERSS9B</option>
+                            </select>
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Select forcefield, default CHARMM36</span>
+                            </span>
+                        </div>
+                    </div>
+                    <button class="fetchBtn" onclick="">Generate</button>
+                </div>
+
+                <div class="taskpanel">
+                    <h3>Define Box and Solvate the System </h3>
+                    <br>
+                    <div class="form-row">
+                        <label for="box_type">Box Type</label>
+                        <div class="input-container">
+                            <select id="box_type" name="box_type">
+                                <option value="cubic">Cubic</option>
+                                <option value="dodecahedron">Dodecahedron</option>
+                                <option value="triclinic">Triclinic</option>
+                            </select>
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Select box type, default Cubic</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="water_model">Water Model</label>
+                        <div class="input-container">
+                            <select id="water_model" name="water_model">
+                                <option value="tip3p">TIP3P</option>
+                                <option value="tip4p">TIP4P</option>
+                                <option value="tip5p">TIP5P</option>
+                                <option value="spc216">SPC216</option>
+                            </select>
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Select water model, default TIP3P</span>
+                            </span>
+                        </div>
+                    </div>
+                    <button class="fetchBtn" onclick="">Solvate</button>
+                </div>
+
+                <div class="taskpanel">
+                    <h3>Add Ions</h3><br>
+                    <div class="form-row">
+                        <label for="neutralize">Neutralize by</label>
+                        <div class="input-container">
+                            <select id="neutralize" name="neutralize" disabled>
+                                <option value="nacl">NaCl</option>
+                            </select>
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Select neutralizing salt, default NaCl</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="concentration">Concentration</label>
+                        <div class="input-container">
+                            <input type="text" id="concentration" name="concentration" placeholder="0.15" disabled>
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Molar amount of salt concentration after neutralization,
+                                    default 0.15 molar or 150 mM</span>
+                            </span>
+                        </div>
+                    </div>
+                    <button class="fetchBtn" onclick="">Add Ions</button>
+                </div>
+
+                <div class="taskpanel">
+                    <h3>Equilibrate System</h3><br>
+                    <div class="form-row">
+                        <label for="equilibration">Equilibration type</label>
+                        <div class="input-container">
+                            <input type="text" id="equilibration" placeholder="NVT/NPT" disabled>
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Equilibration type, default NVT/NPT</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="temperature">Temperature (K)</label>
+                        <div class="input-container">
+                            <input type="text" id="temperature" name="temperature" placeholder="300" disabled>
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Simulation temperature, default 300K</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="pressure">Pressure (bar)</label>
+                        <div class="input-container">
+                            <input type="text" id="pressure" name="pressure" placeholder="1" disabled>
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Simulation pressure, default 1 bar</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="equilibration_time">Equilibration Time (ps)</label>
+                        <div class="input-container">
+                            <input type="text" id="equilibration_time" name="equilibration_time" placeholder="100">
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Equilibration time, default 100ps</span>
+                            </span>
+                        </div>
+                    </div>
+                    <button class="fetchBtn" onclick="">Equilibrate</button>
+                </div>
+
+                <div class="taskpanel">
+                    <h3>Run Simulation</h3><br>
+                    <div class="form-row">
+                        <label for="sim_time">Simulation Time (ns)</label>
+                        <div class="input-container">
+                            <input type="text" id="sim_time" name="sim_time" placeholder="100" required>
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Select simulation time (ns)</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="sim_frames">Number of frames (Optional)</label>
+                        <div class="input-container">
+                            <input type="text" id="sim_frames" name="sim_frames" placeholder="20">
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Select number of frames to be saved</span>
+                            </span>
+                        </div>
+                    </div>
+                    <button class="fetchBtn" onclick="">Simulate</button>
+                </div>
+            </div>
+
+            <div id="simulationTaskAuto" style="display: none;">
+                <form id="parameterForm" action="/submit" method="POST">
+                    <div class="taskpanel">
+                        <h3>Load Molecules</h3>
+                        <br>
+                        <div class="form-row">
+                            <label for="pdb_id">Enter PDB ID</label>
+                            <div class="input-container">
+                                <input type="text" id="pdbInputAuto" name="pdb_id" placeholder="1HNY" required>
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Input PDB ID for Protein</span>
+                                </span>
+                            </div>
+                        </div>
+                        <button class="fetchBtn" type="button" onclick="fetchPDB()">Fetch</button>
+                        
+                        <a style="text-align: center; justify-content: center; display: block; margin-top: 15px;">OR</a>
+                        <a style="text-align: center; justify-content: center; display: block; margin-top: 15px;">Import the protein structure file from your local machine (PDB/PDBQT) </a>
+                        <button
+                            style="justify-content: center; display: block; margin-left:auto; margin-right: auto; padding: 10px 20px 10px 20px;"
+                            onclick="document.getElementById('fileInput').click()">Import File
+                            <input type="file" id="fileInput" accept=".pdb, .pdbqt" style="display: none;"
+                                onchange="loadPDBFile(event)">
+                        </button>
+                    </div>
+
+                    <div class="taskpanel">
+                        <h3>Forcefield</h3>
+                        <br>
+                        <div class="form-row">
+                            <label for="forcefield">Forcefield</label>
+                            <div class="input-container">
+                                <select id="forcefield" name="forcefield">
+                                    <option value="charmm36">CHARMM36</option>
+                                    <option value="charmm27">CHARMM27</option>
+                                    <option value="opls-aa">OPLS/AA</option>
+                                    <option value="amberss9b">AMBERSS9B</option>
+                                </select>
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Select forcefield, default CHARMM36</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="taskpanel">
+                        <h3>Define Box and Solvate the System </h3>
+                        <br>
+                        <div class="form-row">
+                            <label for="box_type">Box Type</label>
+                            <div class="input-container">
+                                <select id="box_type" name="box_type">
+                                    <option value="cubic">Cubic</option>
+                                    <option value="dodecahedron">Dodecahedron</option>
+                                    <option value="triclinic">Triclinic</option>
+                                </select>
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Select box type, default Cubic</span>
+                                </span>
+                            </div><br>
+                        </div>
+                        <div class="form-row">
+                            <label for="water_model">Water Model</label>
+                            <div class="input-container">
+                                <select id="water_model" name="water_model">
+                                    <option value="tip3p">TIP3P</option>
+                                    <option value="tip4p">TIP4P</option>
+                                    <option value="tip5p">TIP5P</option>
+                                    <option value="spc216">SPC216</option>
+                                </select>
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Select water model, default TIP3P</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="taskpanel">
+                        <h3>Add Ions</h3><br>
+                        <div class="form-row">
+                            <label for="neutralize">Neutralize by</label>
+                            <div class="input-container">
+                                <select id="neutralize" name="neutralize" disabled>
+                                    <option value="nacl">NaCl</option>
+                                </select>
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Select neutralizing salt, default NaCl</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="concentration">Concentration</label>
+                            <div class="input-container">
+                                <input type="text" id="concentration" name="concentration" placeholder="0.15" disabled>
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Molar amount of salt concentration after neutralization,
+                                        default 0.15 molar or 150 mM</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="taskpanel">
+                        <h3>Equilibrate System</h3><br>
+                        <div class="form-row">
+                            <label for="equilibration">Equilibration type</label>
+                            <div class="input-container">
+                                <input type="text" id="equilibration" placeholder="NVT/NPT" disabled>
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Equilibration type, default NVT/NPT</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="temperature">Temperature (K)</label>
+                            <div class="input-container">
+                                <input type="text" id="temperature" name="temperature" placeholder="300" disabled>
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Simulation temperature, default 300K</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="pressure">Pressure (bar)</label>
+                            <div class="input-container">
+                                <input type="text" id="pressure" name="pressure" placeholder="1" disabled>
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Simulation pressure, default 1 bar</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="equilibration_time">Equilibration Time (ps)</label>
+                            <div class="input-container">
+                                <input type="text" id="equilibration_time" name="equilibration_time" placeholder="100">
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Equilibration time, default 100ps</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="taskpanel">
+                        <h3>Run Simulation</h3><br>
+                        <div class="form-row">
+                            <label for="sim_time">Simulation Time (ns)</label>
+                            <div class="input-container">
+                                <input type="text" id="sim_time" name="sim_time" placeholder="100" required>
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Select simulation time (ns)</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="sim_frames">Number of frames (Optional)</label>
+                            <div class="input-container">
+                                <input type="text" id="sim_frames" name="sim_frames" placeholder="20">
+                                <span class="tooltip">?
+                                    <span class="tooltiptext">Select number of frames to be saved</span>
+                                </span>
+                            </div>
+                        </div>
+                        <button type="submit" id="submitButton" class="fetchBtn">Start Process</button>
+                    </div>
+                </form>
+            </div>
+            <div class="bottomToolPanel">
+                <h1>STRUCTURE HIERARCHY</h1>
+                <div id="structureInfo" style="font-size: 14px; color: #ffffff33; margin-left: 10px;">
+                    No structure file available.
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ LEFT COLUMN SECTION ENDS HERE =============== -->
+
+        <!-- =========== RIGHT COLUMN SECTION STARTS HERE ============= -->
+
+        <div class="column viewer_pane" contenteditable="false">
+            <div id="viewer">
+            </div>
+        </div>
+
+        <!-- ============= RIGHT COLUMN SECTION ENDS HERE ============= -->
+
+    </div>
+
+    <!-- ****************** BOTTOM LOGO LABEL ************************ -->
+
+    <div class="logo-label">
+        <span class="w3-jumbo nosifer-regular">G R A V </span>
+        <img class="alpha_img" src="../static/images/barrel.png"></img>
+        <span class="w3-jumbo nosifer-regular">T y</span>
+    </div>
+
+    <!-- =========================== MAIN BODY ENDS HERE =========================== -->
+
+
+    <!-- =========================== OTHER FUNCTION STARTS HERE =========================== -->
+
+    <!-- Fetch PDB Modal -->
+    <div id="pdbModal" class="modal">
+        <div class="modal-header">Fetch Protein Structure <span class="close-btn" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="form-row">
+            <label for="pdb_id">Enter PDB ID</label>
+            <div class="input-container">
+                <input type="text" id="pdbInputNavbar" name="pdb_id" placeholder="1SMD" required>
+                <span class="tooltip">?
+                    <span class="tooltiptext">Input PDB ID for Protein</span>
+                </span>
+            </div>
+        </div>
+        <button class="fetchBtn" type="button" onclick="fetchPDB()">Fetch</button>
+    </div>
+
+    <!-- =========================== OTHER FUNCTION ENDS HERE =========================== -->
+
+
+    <!-- =========================== SCRIPT STARTS HERE =========================== -->
+
+    <script src="../static/js/navbar.js"></script>
+    <script src="../static/js/left_pane.js"></script>
+    <script src="../static/js/viewer.js"></script>
+    <script src="../static/js/window_resizer.js"></script>
+
+    <!-- =========================== SCRIPT ENDS HERE =========================== -->
+
+</body>
+
+</html>
